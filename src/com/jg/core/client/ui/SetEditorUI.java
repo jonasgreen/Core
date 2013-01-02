@@ -26,7 +26,7 @@ public class SetEditorUI extends FlowPanel{
     private TextBox textComponent;
     private List<SetItem> items = new ArrayList<SetItem>();
 
-    TextLayout l = new TextLayout("52px", "100%", Vertical.BOTTOM).sizeGiga().colorBaseDark().paddingLeft(4).paddingRight(4);
+    TextLayout l = new TextLayout("40px", "100%", Vertical.BOTTOM).sizeGiga().colorBaseDark().paddingLeft(4).paddingRight(4).paddingBottom(0);
 
 
     public SetEditorUI() {
@@ -294,7 +294,8 @@ public class SetEditorUI extends FlowPanel{
     }
 
     public Result getResult() {
-        if(state == SetEditorState.State.reset){
+
+         if(state == SetEditorState.State.reset || state == SetEditorState.State.unknown){
             return null;
         }
 
