@@ -1,9 +1,7 @@
 package com.jg.core.client.ui;
 
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -34,6 +32,10 @@ public class SetEditorUI extends FlowPanel{
         items.add(new StartItem());
         add(getTextBox());
         StyleIt.add(getTextBox(), l);
+
+        getTextBox().setText("Enter result");
+        getTextBox().getElement().getStyle().setFontStyle(Style.FontStyle.ITALIC);
+        getTextBox().getElement().getStyle().setColor("grey");
 
     }
 
@@ -118,6 +120,8 @@ public class SetEditorUI extends FlowPanel{
                     changesMade();
                 }
             });
+
+            
         }
         return textComponent;
     }
@@ -173,6 +177,11 @@ public class SetEditorUI extends FlowPanel{
     }
 
     private void keyPressed(KeyDownEvent event) {
+        if(getTextBox().getText().startsWith("E")){
+            getTextBox().setText("");
+            getTextBox().getElement().getStyle().setFontStyle(Style.FontStyle.NORMAL);
+            getTextBox().getElement().getStyle().setColor("rgb(51,51,51)");
+        }
         int cursorPos = getTextBox().getCursorPos();
         int key = event.getNativeKeyCode();
 
