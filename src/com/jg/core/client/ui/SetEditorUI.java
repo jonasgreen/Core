@@ -3,7 +3,6 @@ package com.jg.core.client.ui;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.jg.core.client.model.*;
 import com.jg.core.client.style.StyleIt;
@@ -17,7 +16,7 @@ import java.util.List;
 /**
  *
  */
-public class SetEditorUI extends FlowPanel{
+public class SetEditorUI extends FlowPanel {
     private SetEditorState.State state = SetEditorState.State.unknown;
 
     private List<SetEditorListener> listeners = new ArrayList<SetEditorListener>();
@@ -33,10 +32,16 @@ public class SetEditorUI extends FlowPanel{
         add(getTextBox());
         StyleIt.add(getTextBox(), l);
 
+        styleEmptyTextBox();
+
+    }
+
+    private void styleEmptyTextBox() {
         getTextBox().setText("Enter result");
         getTextBox().getElement().getStyle().setFontStyle(Style.FontStyle.ITALIC);
         getTextBox().getElement().getStyle().setColor("grey");
-
+        getTextBox().setCursorPos(0);
+        getTextBox().getElement().getStyle().setColor("rgb(201,201,201)");
     }
 
 
@@ -59,7 +64,7 @@ public class SetEditorUI extends FlowPanel{
         StringBuffer sb = new StringBuffer();
         int index = 0;
         for (Integer home : scoresHome) {
-            if(index > 0){
+            if (index > 0) {
                 items.add(new SetSepItem());
                 sb.append(SetSepItem.SEP_VALUE);
             }
@@ -78,12 +83,12 @@ public class SetEditorUI extends FlowPanel{
 
     }
 
-    private List<NumberItem> getNumberItems(boolean isHome, Integer value){
+    private List<NumberItem> getNumberItems(boolean isHome, Integer value) {
         String s = String.valueOf(value);
         List<NumberItem> list = new ArrayList<NumberItem>();
 
         int index = 0;
-        while(index < s.length()){
+        while (index < s.length()) {
             list.add(new NumberItem(isHome));
             index++;
         }
@@ -91,7 +96,6 @@ public class SetEditorUI extends FlowPanel{
         return list;
 
     }
-
 
 
     public void reset() {
@@ -110,6 +114,11 @@ public class SetEditorUI extends FlowPanel{
 
             textComponent.addKeyUpHandler(new KeyUpHandler() {
                 public void onKeyUp(KeyUpEvent event) {
+                    if(event.getNativeKeyCode() == KeyCodes.KEY_TAB){
+                        getTextBox().setSelectionRange(0,0);
+
+                        return;
+                    }
                     if (KeyUtil.isArrow(event.getNativeKeyCode())) {
                         return;
                     }
@@ -118,10 +127,32 @@ public class SetEditorUI extends FlowPanel{
                         rebuild();
                     }
                     changesMade();
+                    if(getTextBox().getText().equals("")){
+                        styleEmptyTextBox();
+                    }
+
+
                 }
             });
 
-            
+            textComponent.addFocusHandler(new FocusHandler() {
+                public void onFocus(FocusEvent event) {
+                    if (textComponent.getText().startsWith("E")) {
+                        getTextBox().setSelectionRange(0,0);
+                        getTextBox().setCursorPos(0);
+                    }
+                }
+            });
+
+            textComponent.addBlurHandler(new BlurHandler() {
+                public void onBlur(BlurEvent event) {
+                    if (getTextBox().getText().equals("")) {
+                        styleEmptyTextBox();
+                    }
+                }
+            });
+
+
         }
         return textComponent;
     }
@@ -131,18 +162,18 @@ public class SetEditorUI extends FlowPanel{
         StringBuffer sb = new StringBuffer();
         String text = textComponent.getText().trim();
         boolean dontAddNextIfSpace = false;
-        while (index < text.length()){
+        while (index < text.length()) {
             char c = text.charAt(index++);
-            if(c == ' '){
-                if(dontAddNextIfSpace){
+            if (c == ' ') {
+                if (dontAddNextIfSpace) {
                     //ignore
                 }
-                else{
+                else {
                     sb.append(c);
                     dontAddNextIfSpace = true;
                 }
             }
-            else{
+            else {
                 sb.append(c);
                 dontAddNextIfSpace = false;
             }
@@ -158,18 +189,18 @@ public class SetEditorUI extends FlowPanel{
         int index = 0;
         boolean isHome = true;
         SetItem lastItem;
-        while(index < text.length()){
+        while (index < text.length()) {
             char c = text.charAt(index++);
-            if(c == ' '){
+            if (c == ' ') {
                 items.add(new SetSepItem());
                 isHome = true;
 
             }
-            else if(c == '-'){
+            else if (c == '-') {
                 items.add(new NumberSepItem());
                 isHome = false;
             }
-            else{
+            else {
                 items.add(new NumberItem(isHome));
             }
         }
@@ -177,7 +208,7 @@ public class SetEditorUI extends FlowPanel{
     }
 
     private void keyPressed(KeyDownEvent event) {
-        if(getTextBox().getText().startsWith("E")){
+        if (getTextBox().getText().startsWith("E")) {
             getTextBox().setText("");
             getTextBox().getElement().getStyle().setFontStyle(Style.FontStyle.NORMAL);
             getTextBox().getElement().getStyle().setColor("rgb(51,51,51)");
@@ -186,7 +217,11 @@ public class SetEditorUI extends FlowPanel{
         int key = event.getNativeKeyCode();
 
         //prevent selection
-        if(textComponent.getSelectionLength() > 0){
+        if (textComponent.getSelectionLength() > 0) {
+            return;
+        }
+
+        if (KeyUtil.isTab(key)) {
             return;
         }
 
@@ -220,9 +255,8 @@ public class SetEditorUI extends FlowPanel{
     }
 
 
-
     private void handleDelete(int cursorPos) {
-        removeItem(cursorPos+1);
+        removeItem(cursorPos + 1);
     }
 
 
@@ -304,7 +338,7 @@ public class SetEditorUI extends FlowPanel{
 
     public Result getResult() {
 
-         if(state == SetEditorState.State.reset || state == SetEditorState.State.unknown){
+        if (state == SetEditorState.State.reset || state == SetEditorState.State.unknown) {
             return null;
         }
 
@@ -314,19 +348,19 @@ public class SetEditorUI extends FlowPanel{
         int index = 0;
         StringBuffer sb = new StringBuffer();
         boolean home = true;
-        while (index < text.length()){
+        while (index < text.length()) {
             char c = text.charAt(index++);
-            if(Character.isDigit(c)){
+            if (Character.isDigit(c)) {
                 sb.append(c);
             }
-            else{
-                if(sb.length() != 0){
+            else {
+                if (sb.length() != 0) {
                     Integer value = Integer.valueOf(sb.toString());
-                    if(home){
+                    if (home) {
                         homeResult.add(value);
                         home = false;
                     }
-                    else{
+                    else {
                         outResult.add(Integer.valueOf(sb.toString()));
                         home = true;
                     }
@@ -336,7 +370,7 @@ public class SetEditorUI extends FlowPanel{
             }
         }
         //in case out has not been emptied
-        if(sb.length() != 0){
+        if (sb.length() != 0) {
             outResult.add(Integer.valueOf(sb.toString()));
         }
         return Result.newInstance(homeResult, outResult);
