@@ -20,29 +20,17 @@ public class SetEditorUI extends FlowPanel {
     private SetEditorState.State state = SetEditorState.State.unknown;
 
     private List<SetEditorListener> listeners = new ArrayList<SetEditorListener>();
-    private TextBox textComponent;
+    private TextBoxUi textComponent;
     private List<SetItem> items = new ArrayList<SetItem>();
 
-    TextLayout l = new TextLayout("40px", "100%", Vertical.BOTTOM).sizeGiga().colorBaseDark().paddingLeft(4).paddingRight(4).paddingBottom(0);
 
 
     public SetEditorUI() {
         super();
         items.add(new StartItem());
         add(getTextBox());
-        StyleIt.add(getTextBox(), l);
-
-        styleEmptyTextBox();
-
     }
 
-    private void styleEmptyTextBox() {
-        getTextBox().setText("Enter result");
-        getTextBox().getElement().getStyle().setFontStyle(Style.FontStyle.ITALIC);
-        getTextBox().getElement().getStyle().setColor("grey");
-        getTextBox().setCursorPos(0);
-        getTextBox().getElement().getStyle().setColor("rgb(201,201,201)");
-    }
 
 
     public void addListener(SetEditorListener l) {
@@ -50,7 +38,7 @@ public class SetEditorUI extends FlowPanel {
     }
 
     public void setFocus(boolean b) {
-        textComponent.setFocus(true);
+        textComponent.getTextBox().setFocus(true);
     }
 
     public void load(Result r) {
@@ -79,7 +67,7 @@ public class SetEditorUI extends FlowPanel {
             index++;
         }
         textComponent.setText(sb.toString());
-        textComponent.setFocus(true);
+        textComponent.getTextBox().setFocus(true);
 
     }
 
@@ -103,55 +91,34 @@ public class SetEditorUI extends FlowPanel {
     }
 
 
-    public TextBox getTextBox() {
+    public TextBoxUi getTextBox() {
         if (textComponent == null) {
-            textComponent = new TextBox();
-            textComponent.addKeyDownHandler(new KeyDownHandler() {
+            textComponent = new TextBoxUi();
+            textComponent.setEmptyText("Result");
+            textComponent.getTextBox().addKeyDownHandler(new KeyDownHandler() {
                 public void onKeyDown(KeyDownEvent event) {
                     keyPressed(event);
                 }
             });
 
-            textComponent.addKeyUpHandler(new KeyUpHandler() {
+
+            textComponent.getTextBox().addKeyUpHandler(new KeyUpHandler() {
                 public void onKeyUp(KeyUpEvent event) {
-                    if(event.getNativeKeyCode() == KeyCodes.KEY_TAB){
-                        getTextBox().setSelectionRange(0,0);
+                    if (event.getNativeKeyCode() == KeyCodes.KEY_TAB) {
+                        getTextBox().getTextBox().setSelectionRange(0, 0);
 
                         return;
                     }
                     if (KeyUtil.isArrow(event.getNativeKeyCode())) {
                         return;
                     }
-                    if (items.size() != textComponent.getText().length() + 1) {
+                    if (items.size() != textComponent.getTextBox().getText().length() + 1) {
                         removeDoubleSpaces();
                         rebuild();
                     }
                     changesMade();
-                    if(getTextBox().getText().equals("")){
-                        styleEmptyTextBox();
-                    }
-
-
                 }
             });
-
-            textComponent.addFocusHandler(new FocusHandler() {
-                public void onFocus(FocusEvent event) {
-                    if (textComponent.getText().startsWith("E")) {
-                        getTextBox().setSelectionRange(0,0);
-                        getTextBox().setCursorPos(0);
-                    }
-                }
-            });
-
-            textComponent.addBlurHandler(new BlurHandler() {
-                public void onBlur(BlurEvent event) {
-                    if (getTextBox().getText().equals("")) {
-                        styleEmptyTextBox();
-                    }
-                }
-            });
-
 
         }
         return textComponent;
@@ -160,7 +127,7 @@ public class SetEditorUI extends FlowPanel {
     private void removeDoubleSpaces() {
         int index = 0;
         StringBuffer sb = new StringBuffer();
-        String text = textComponent.getText().trim();
+        String text = textComponent.getTextBox().getText().trim();
         boolean dontAddNextIfSpace = false;
         while (index < text.length()) {
             char c = text.charAt(index++);
@@ -213,11 +180,11 @@ public class SetEditorUI extends FlowPanel {
             getTextBox().getElement().getStyle().setFontStyle(Style.FontStyle.NORMAL);
             getTextBox().getElement().getStyle().setColor("rgb(51,51,51)");
         }
-        int cursorPos = getTextBox().getCursorPos();
+        int cursorPos = getTextBox().getTextBox().getCursorPos();
         int key = event.getNativeKeyCode();
 
         //prevent selection
-        if (textComponent.getSelectionLength() > 0) {
+        if (textComponent.getTextBox().getSelectionLength() > 0) {
             return;
         }
 
